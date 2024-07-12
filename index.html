@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alarm Clock</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9)); /* Light gradient background */
+            margin: 0;
+        }
+
+        .label {
+            font-size: 4.5em;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .time-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.9); /* Light background for time container */
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        #current-time {
+            font-size: 8em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #remaining-time {
+            font-size: 1.5em;
+            color: #555;
+            margin-bottom: 40px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+        }
+
+        #stop-button {
+            background-color: #ff4d4d;
+            color: white;
+        }
+
+        #stop-button:hover {
+            background-color: #ff3333;
+        }
+
+        #play-button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #play-button:hover {
+            background-color: #45a049;
+        }
+
+        #change-sound-button {
+            background-color: #4ce33f;
+            color: white;
+            font-size: 1.5em; /* Adjusted font size */
+            padding: 8px 16px; /* Adjusted padding */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 10px;
+        }
+
+        #change-sound-button:hover {
+            background-color: #03b300;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        /* Info Button Styles */
+        #info-button {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            visibility: hidden;
+            opacity: 0;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            z-index: 1;
+            transform: translateY(-10px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .tooltip::after {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: transparent transparent #333 transparent;
+        }
+
+        .show-tooltip {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <button id="info-button" aria-label="Information" onclick="toggleInfo()">ℹ️</button>
+    <div class="label">TIME</div>
+    <div class="time-container">
+        <div id="current-time"></div>
+    </div>
+    <div id="remaining-time"></div>
+    <button id="stop-button">Stop Alarm</button>
+    <button id="play-button">Play Alarm</button>
+    <button id="change-sound-button">Change Sound</button>
+    <input type="file" id="file-input" accept=".mp3">
+
+    <audio id="alarm-sound" src="alarm.mp3"></audio>
+
+    <!-- Info Tooltip -->
+    <div id="info-tooltip" class="tooltip">
+        <p>This program is created using HTML, CSS, and JavaScript.</p>
+        <p>A web application created by Harold Trinidad for Tamu quality checking every 15 mins.</p>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function toggleInfo() {
+            var tooltip = document.getElementById('info-tooltip');
+            tooltip.classList.toggle('show-tooltip');
+        }
+    </script>
+</body>
+</html>
