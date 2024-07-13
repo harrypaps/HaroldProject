@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harold TAMU Web App</title>
+    <title>Alarm Clock</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -12,7 +12,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9)); /* Light gradient background */
+            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9));
             margin: 0;
         }
 
@@ -27,7 +27,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.9); /* Light background for time container */
+            background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
             padding: 40px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -35,7 +35,7 @@
         }
 
         #current-time {
-            font-size: 15em;
+            font-size: 8em;
             font-weight: bold;
             color: #333;
         }
@@ -77,8 +77,8 @@
         #change-sound-button {
             background-color: #4ce33f;
             color: white;
-            font-size: 1.5em; /* Adjusted font size */
-            padding: 8px 16px; /* Adjusted padding */
+            font-size: 1.5em;
+            padding: 8px 16px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -94,7 +94,6 @@
             display: none;
         }
 
-        /* Info Button Styles */
         #info-button {
             position: absolute;
             top: 10px;
@@ -109,11 +108,10 @@
             cursor: pointer;
         }
 
-        /* Tooltip Styles */
         .tooltip {
             visibility: hidden;
             opacity: 0;
-            width: 200px;
+            width: 250px;
             background-color: #333;
             color: #fff;
             text-align: center;
@@ -121,7 +119,7 @@
             padding: 10px;
             position: absolute;
             top: 60px;
-            left: 20px;
+            left: 10px;
             z-index: 1;
             transform: translateY(-10px);
             transition: opacity 0.3s, transform 0.3s;
@@ -147,7 +145,7 @@
 </head>
 <body>
     <button id="info-button" aria-label="Information" onclick="toggleInfo()">ℹ️</button>
-    <div class="label">TAMU ALARM</div>
+    <div class="label">TIME</div>
     <div class="time-container">
         <div id="current-time"></div>
     </div>
@@ -159,7 +157,6 @@
 
     <audio id="alarm-sound" src="alarm.mp3" loop></audio>
 
-    <!-- Info Tooltip -->
     <div id="info-tooltip" class="tooltip">
         <p>This program is created using HTML, CSS, and JavaScript.</p>
         <p>A web application created by Harold Trinidad for Tamu quality checking every 15 mins.</p>
