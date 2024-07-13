@@ -1,61 +1,68 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const currentTimeElement = document.getElementById('current-time');
-    const remainingTimeElement = document.getElementById('remaining-time');
+    const currentTimeEl = document.getElementById('current-time');
+    const remainingTimeEl = document.getElementById('remaining-time');
     const stopButton = document.getElementById('stop-button');
     const playButton = document.getElementById('play-button');
     const changeSoundButton = document.getElementById('change-sound-button');
+    const fileInput = document.getElementById('file-input');
     const alarmSound = document.getElementById('alarm-sound');
 
-    // Function to update the current time
-    function updateTime() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        currentTimeElement.textContent = `${hours}:${minutes}:${seconds}`;
+    // Update the current time and remaining time every second
+    setInterval(updateTime, 1000);
 
-        // Calculate remaining time for the next alarm
-        const nextAlarmMinutes = [0, 15, 30, 45].find(m => m > now.getMinutes()) || 0;
-        const nextAlarmTime = new Date(now);
-        nextAlarmTime.setMinutes(nextAlarmMinutes, 0, 0);
-        if (nextAlarmMinutes === 0 && now.getMinutes() >= 45) {
-            nextAlarmTime.setHours(now.getHours() + 1);
-        }
-        const remainingTime = Math.ceil((nextAlarmTime - now) / 1000 / 60);
-        remainingTimeElement.textContent = `Next Alarm In: ${remainingTime} minutes`;
-
-        // Check if it's time to ring the alarm
-        if ([0, 15, 30, 45].includes(now.getMinutes()) && now.getSeconds() === 0) {
-            alarmSound.play();
-        }
-    }
-
-    // Stop the alarm sound
+    // Stop alarm when the stop button is clicked
     stopButton.addEventListener('click', () => {
         alarmSound.pause();
         alarmSound.currentTime = 0;
     });
 
-    // Play the alarm sound manually
+    // Play alarm when the play button is clicked
     playButton.addEventListener('click', () => {
         alarmSound.play();
     });
 
-    // Change sound button functionality (placeholder)
+    // Trigger file input click when change sound button is clicked
     changeSoundButton.addEventListener('click', () => {
-        // Implement sound change functionality here
-        alert('Change Sound Placeholder');
+        fileInput.click();
     });
 
-    // Handle spacebar shortcut for stop button
+    // Change the sound file when a new file is selected
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+            const fileURL = URL.createObjectURL(file);
+            alarmSound.src = fileURL;
+        }
+    });
+
+    // Trigger stop button when the spacebar is pressed
     document.addEventListener('keydown', (event) => {
-        if (event.key === ' ' || event.keyCode === 32) {
-            // Spacebar pressed, trigger stop button click
+        if (event.code === 'Space') {
             stopButton.click();
         }
     });
 
-    // Update time every second
-    setInterval(updateTime, 1000);
-    updateTime();  // Initial call to display time immediately
+    function updateTime() {
+        const now = new Date();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        // Update current time
+        currentTimeEl.textContent = now.toLocaleTimeString();
+
+        // Calculate remaining time until next alarm
+        let remainingMinutes = 15 - (minutes % 15) - 1;
+        let remainingSeconds = 60 - seconds;
+        if (remainingSeconds === 60) {
+            remainingMinutes += 1;
+            remainingSeconds = 0;
+        }
+
+        remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+
+        // Trigger alarm at 00, 15, 30, 45 minutes of each hour
+        if ([0, 15, 30, 45].includes(minutes) && seconds === 0) {
+            alarmSound.play();
+        }
+    }
 });
