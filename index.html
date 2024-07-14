@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alarm Clock</title>
+    <title>HAROLD WEB APP</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -35,22 +35,39 @@
         }
 
         #current-time {
-            font-size: 8em;
+            letter-spacing: 3px;
+            font-size: 12em;
             font-weight: bold;
             color: #333;
         }
 
         #current-date {
+            letter-spacing: 5px;
             font-size: 2em;
             font-weight: bold;
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: 0px;
         }
 
         #remaining-time {
             font-size: 1.5em;
             color: #555;
-            margin-bottom: 40px;
+            margin-bottom: 0px;
+        }
+
+        #expiration-container {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow for container */
+        }
+
+
+        #expiration-date {
+            display: inline-block;
         }
 
         button {
@@ -59,7 +76,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
             margin: 10px;
         }
 
@@ -115,6 +132,26 @@
             cursor: pointer;
         }
 
+        #days-buttons-container, #control-buttons-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .days-button, .control-button {
+            padding: 10px 20px;
+            font-size: 2em;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin: 10px;
+        }
+
+        .days-button.selected {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
         .tooltip {
             visibility: hidden;
             opacity: 0;
@@ -152,20 +189,32 @@
 </head>
 <body>
     <button id="info-button" aria-label="Information" onclick="toggleInfo()">ℹ️</button>
-    <div id="current-date"></div>
-    <div class="time-container">
-        <div id="current-time"></div>
+    <div id="expiration-container">
+        <div id="expiration-date"></div>
     </div>
-    <div id="remaining-time"></div>
-    <button id="alarm-button" aria-label="Toggle Alarm" class="play">Play Alarm</button>
-    <button id="change-sound-button" aria-label="Change Alarm Sound">Change Sound</button>
+    
+    <div class="time-container">
+        <div id="current-date"></div>
+        <div id="current-time"></div>
+        <div id="remaining-time"></div>
+    </div>
+    
+    <div id="days-buttons-container">
+        <button id="180-days-button" class="days-button" aria-label="180 Days">180 Days</button>
+        <button id="210-days-button" class="days-button" aria-label="210 Days">210 Days</button>
+    </div>
+    <div id="control-buttons-container">
+        <button id="alarm-button" class="control-button play" aria-label="Toggle Alarm">Play Alarm</button>
+        <button id="change-sound-button" class="control-button" aria-label="Change Alarm Sound">Change Sound</button>
+    </div>
     <input type="file" id="file-input" accept=".mp3">
 
     <audio id="alarm-sound" src="alarm.mp3" loop></audio>
 
     <div id="info-tooltip" class="tooltip">
-        <p>This program is created using HTML, CSS, and JavaScript.</p>
-        <p>A web application created by Harold Trinidad for Tamu quality checking every 15 mins.</p>
+        
+        <p>This web application, created by <strong>Harold Trinidad</strong>, automates the management of tools used by operators for quality checks every 15 minutes. It includes an expiration date calculator that shows real-time expiration dates for product labeling. By eliminating the need for manual alarm setups, it significantly saves valuable time and enhances operational efficiency.</p>
+
     </div>
 
     <script src="script.js"></script>
@@ -193,6 +242,96 @@
                 alarmButton.classList.add('play');
             }
         });
+
+        let selectedDays = 0;
+
+        // Update the expiration date
+        function updateExpirationDate() {
+            if (selectedDays > 0) {
+                const expirationDateEl = document.getElementById('expiration-date');
+                const now = new Date();
+                const expirationDate = new Date(now.getTime() + selectedDays * 24 * 60 * 60 * 1000);
+
+                const day = expirationDate.getDate().toString().padStart(2, '0');
+                const month = expirationDate.toLocaleString('en-us', { month: 'short' }).toUpperCase();
+                const year = expirationDate.getFullYear().toString().slice(2);
+                const hours = expirationDate.getHours().toString().padStart(2, '0');
+                const minutes = expirationDate.getMinutes().toString().padStart(2, '0');
+
+                const formattedExpirationDate = `${day}${month}${year} ${hours}${minutes}`;
+                expirationDateEl.textContent = `Expiration Date: ${formattedExpirationDate}`;
+            }
+        }
+
+        // Event listeners for the 180 and 210 days buttons
+        document.getElementById('180-days-button').addEventListener('click', () => {
+            selectedDays = 180;
+            updateExpirationDate();
+            selectButton('180-days-button');
+        });
+
+        document.getElementById('210-days-button').addEventListener('click', () => {
+            selectedDays = 210;
+            updateExpirationDate();
+            selectButton('210-days-button');
+        });
+
+        function selectButton(buttonId) {
+            document.querySelectorAll('.days-button').forEach(button => {
+                button.classList.remove('selected');
+            });
+            document.getElementById(buttonId).classList.add('selected');
+        }
+
+        function updateTimeAndDate() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            // Format the time as HH:MM:SS
+            const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            // Update current time
+            document.getElementById('current-time').textContent = formattedTime;
+
+            // Format the date as "YYYY.MM.DD DAY"
+            const formattedDate = `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} ${getDayOfWeek(now)}`;
+
+            // Update current date
+            document.getElementById('current-date').textContent = formattedDate;
+
+            // Calculate remaining time until next alarm
+            let remainingMinutes = 15 - (minutes % 15) - 1;
+            let remainingSeconds = 60 - seconds;
+            if (remainingSeconds === 60) {
+                remainingMinutes += 1;
+                remainingSeconds = 0;
+            }
+
+            // Display remaining time until next alarm
+            document.getElementById('remaining-time').textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+
+            // Trigger alarm at 00, 15, 30, 45 minutes past the hour
+            if (minutes % 15 === 0 && seconds === 0) {
+                alarmSound.play();
+                alarmButton.textContent = 'Stop Alarm';
+                alarmButton.classList.remove('play');
+                alarmButton.classList.add('stop');
+            }
+
+            // Update expiration date in real-time
+            updateExpirationDate();
+        }
+
+        // Helper function to get the day of the week as a string
+        function getDayOfWeek(date) {
+            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+            return days[date.getDay()];
+        }
+
+        // Update the time and date every second
+        setInterval(updateTimeAndDate, 1000);
     </script>
 </body>
 </html>
