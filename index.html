@@ -40,6 +40,13 @@
             color: #333;
         }
 
+        #current-date {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
         #remaining-time {
             font-size: 1.5em;
             color: #555;
@@ -56,22 +63,22 @@
             margin: 10px;
         }
 
-        #stop-button {
-            background-color: #ff4d4d;
+        #alarm-button.play {
+            background-color: #4CAF50; /* Green color */
             color: white;
         }
 
-        #stop-button:hover {
-            background-color: #ff3333;
-        }
-
-        #play-button {
-            background-color: #4CAF50;
-            color: white;
-        }
-
-        #play-button:hover {
+        #alarm-button.play:hover {
             background-color: #45a049;
+        }
+
+        #alarm-button.stop {
+            background-color: #FF5733; /* Red color */
+            color: white;
+        }
+
+        #alarm-button.stop:hover {
+            background-color: #e64c00;
         }
 
         #change-sound-button {
@@ -145,14 +152,13 @@
 </head>
 <body>
     <button id="info-button" aria-label="Information" onclick="toggleInfo()">ℹ️</button>
-    <div class="label">TIME</div>
+    <div id="current-date"></div>
     <div class="time-container">
         <div id="current-time"></div>
     </div>
     <div id="remaining-time"></div>
-    <button id="stop-button">Stop Alarm</button>
-    <button id="play-button">Play Alarm</button>
-    <button id="change-sound-button">Change Sound</button>
+    <button id="alarm-button" aria-label="Toggle Alarm" class="play">Play Alarm</button>
+    <button id="change-sound-button" aria-label="Change Alarm Sound">Change Sound</button>
     <input type="file" id="file-input" accept=".mp3">
 
     <audio id="alarm-sound" src="alarm.mp3" loop></audio>
@@ -168,6 +174,25 @@
             var tooltip = document.getElementById('info-tooltip');
             tooltip.classList.toggle('show-tooltip');
         }
+
+        // Combined play/stop functionality
+        var alarmSound = document.getElementById('alarm-sound');
+        var alarmButton = document.getElementById('alarm-button');
+
+        alarmButton.addEventListener('click', function() {
+            if (alarmSound.paused) {
+                alarmSound.play();
+                alarmButton.textContent = 'Stop Alarm';
+                alarmButton.classList.remove('play');
+                alarmButton.classList.add('stop');
+            } else {
+                alarmSound.pause();
+                alarmSound.currentTime = 0;
+                alarmButton.textContent = 'Play Alarm';
+                alarmButton.classList.remove('stop');
+                alarmButton.classList.add('play');
+            }
+        });
     </script>
 </body>
 </html>
