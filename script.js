@@ -6,30 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const playButton = document.getElementById('play-button');
     const changeSoundButton = document.getElementById('change-sound-button');
     const fileInput = document.getElementById('file-input');
-    var alarmSound = document.getElementById('alarm-sound');
-    var alarmButton = document.getElementById('alarm-button');
+    let alarmSound = document.getElementById('alarm-sound');
+    let selectedDays = 0;
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
     setInterval(updateExpirationDate, 1000);
-
-    // Combined play/stop functionality
-    alarmButton.addEventListener('click', function() {
-        if (alarmSound.paused) {
-            alarmSound.play();
-            alarmButton.textContent = 'Stop Alarm';
-            alarmButton.classList.remove('play');
-            alarmButton.classList.add('stop');
-        } else {
-            alarmSound.pause();
-            alarmSound.currentTime = 0;
-            alarmButton.textContent = 'Play Alarm';
-            alarmButton.classList.remove('stop');
-            alarmButton.classList.add('play');
-        }
-    });
-
-    let selectedDays = 0;
 
     // Update the expiration date
     function updateExpirationDate() {
@@ -83,6 +65,67 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Function to update the current time and remaining time
+    function updateTime() {
+        const now = new Date();
+        document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', { hour12: false });
+
+        document.getElementById('current-date').textContent = formatDate(now);
+
+        const nextQuarterHour = new Date(now);
+        nextQuarterHour.setMinutes(Math.ceil(now.getMinutes() / 15) * 15, 0, 0);
+
+        const remainingTime = Math.ceil((nextQuarterHour - now) / 60000);
+        document.getElementById('remaining-time').textContent = `Next alarm in ${remainingTime} minute${remainingTime !== 1 ? 's' : ''}`;
+    }
+
+    setInterval(updateTime, 1000);
+
+    // Change sound button functionality
+    document.getElementById('change-sound-button').addEventListener('click', () => {
+        document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const fileURL = URL.createObjectURL(file);
+            alarmSound.src = fileURL;
+        }
+    });
+
+    // Stop alarm when the stop button is clicked
+    stopButton.addEventListener('click', () => {
+        alarmSound.pause();
+        alarmSound.currentTime = 0;
+    });
+
+    // Play alarm when the play button is clicked
+    playButton.addEventListener('click', () => {
+        alarmSound.play();
+    });
+
+    // Trigger file input click when change sound button is clicked
+    changeSoundButton.addEventListener('click', () => {
+        fileInput.click();
+    });
+
+    // Change the sound file when a new file is selected
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (file) {
+            const fileURL = URL.createObjectURL(file);
+            alarmSound.src = fileURL;
+            alarmSound.load(); // Ensure the new sound file is loaded
+        }
+    });
+
+    // Trigger stop button when the spacebar is pressed
+    document.addEventListener('keydown', (event) => {
+        if (event.code === 'Space') {
+            stopButton.click();
+        }
+    });
+
     function updateTimeAndDate() {
         const now = new Date();
         const hours = now.getHours();
@@ -123,34 +166,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return daysOfWeek[date.getDay()];
     }
 
-    // Change sound button functionality
-    document.getElementById('change-sound-button').addEventListener('click', () => {
-        document.getElementById('file-input').click();
-    });
+    // Visibility API
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            const hiddenTime = new Date();
+            const hiddenInterval = setInterval(function() {
+                const now = new Date();
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
 
-    document.getElementById('file-input').addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const fileURL = URL.createObjectURL(file);
-            alarmSound.src = fileURL;
-        }
-    });
+                if ([0, 15, 30, 45].includes(minutes) && seconds === 0) {
+                    alarmSound.play();
+                    clearInterval(hiddenInterval);
+                }
 
-    // Stop alarm when the stop button is clicked
-    stopButton.addEventListener('click', () => {
-        alarmSound.pause();
-        alarmSound.currentTime = 0;
-    });
-
-    // Play alarm when the play button is clicked
-    playButton.addEventListener('click', () => {
-        alarmSound.play();
-    });
-
-    // Trigger stop button when the spacebar is pressed
-    document.addEventListener('keydown', (event) => {
-        if (event.code === 'Space') {
-            stopButton.click();
+                if (!document.hidden) {
+                    clearInterval(hiddenInterval);
+                }
+            }, 1000);
         }
     });
 });
