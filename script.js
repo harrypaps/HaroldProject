@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
+    setInterval(updateExpirationDate, 1000);
 
     // TESTING
      // Combined play/stop functionality
