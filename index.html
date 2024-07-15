@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HAROLD WEB APP</title>
+    <link rel="icon" href="alarm.png" type="image/png">
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -62,9 +63,8 @@
             padding: 20px;
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add box shadow for container */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
-
 
         #expiration-date {
             display: inline-block;
@@ -81,7 +81,7 @@
         }
 
         #alarm-button.play {
-            background-color: #4CAF50; /* Green color */
+            background-color: #4CAF50;
             color: white;
         }
 
@@ -90,7 +90,7 @@
         }
 
         #alarm-button.stop {
-            background-color: #FF5733; /* Red color */
+            background-color: #FF5733;
             color: white;
         }
 
@@ -212,9 +212,7 @@
     <audio id="alarm-sound" src="alarm.mp3" loop></audio>
 
     <div id="info-tooltip" class="tooltip">
-        
         <p>This web application, created by <strong>Harold Trinidad</strong>, automates the management of tools used by operators for quality checks every 15 minutes. It includes an expiration date calculator that shows real-time expiration dates for product labeling. By eliminating the need for manual alarm setups, it significantly saves valuable time and enhances operational efficiency.</p>
-
     </div>
 
     <script src="script.js"></script>
