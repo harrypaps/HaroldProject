@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 
         // Trigger alarm at 00, 15, 30, 45 minutes of each hour
-        if ([0, 18, 35, 45].includes(minutes) && seconds === 0) {
+        if ([0, 18, 41, 42].includes(minutes) && seconds === 0) {
             playAlarmSound();
         }
     }
