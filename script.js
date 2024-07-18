@@ -2,34 +2,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentDateEl = document.getElementById('current-date');
     const currentTimeEl = document.getElementById('current-time');
     const remainingTimeEl = document.getElementById('remaining-time');
-    const stopButton = document.getElementById('stop-button');
-    const playButton = document.getElementById('play-button');
-    const changeSoundButton = document.getElementById('change-sound-button');
-    const fileInput = document.getElementById('file-input');
-    var alarmSound = document.getElementById('alarm-sound');
-    var alarmButton = document.getElementById('alarm-button');
+    const alarmButton = document.getElementById('alarm-button');
+    const alarmSound = document.getElementById('alarm-sound');
+    let selectedDays = 0;
+    let audioContext;
+    let audioBuffer;
+    let source;
+
+    // Initialize AudioContext
+    function initAudioContext() {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        fetch(alarmSound.src)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.arrayBuffer();
+            })
+            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+            .then(buffer => {
+                audioBuffer = buffer;
+                console.log('Audio buffer loaded');
+            })
+            .catch(error => {
+                console.error('Error loading audio:', error);
+            });
+    }
+
+    // Play alarm sound using AudioContext
+    function playAlarmSound() {
+        if (audioContext && audioBuffer) {
+            source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(audioContext.destination);
+            source.loop = true;
+            source.start(0);
+            console.log('Alarm sound playing');
+        } else {
+            console.log('AudioContext or audioBuffer not initialized');
+        }
+    }
+
+    // Stop alarm sound
+    function stopAlarmSound() {
+        if (source) {
+            source.stop(0);
+            source = null;
+            console.log('Alarm sound stopped');
+        }
+    }
+
+    // Handle alarm button click
+    alarmButton.addEventListener('click', function() {
+        if (!audioContext) {
+            initAudioContext();
+        }
+        if (source) {
+            stopAlarmSound();
+            alarmButton.textContent = 'Play Alarm';
+            alarmButton.classList.remove('stop');
+            alarmButton.classList.add('play');
+        } else {
+            playAlarmSound();
+            alarmButton.textContent = 'Stop Alarm';
+            alarmButton.classList.remove('play');
+            alarmButton.classList.add('stop');
+        }
+    });
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
     setInterval(updateExpirationDate, 1000);
-
-    // Combined play/stop functionality
-    alarmButton.addEventListener('click', function() {
-        if (alarmSound.paused) {
-            alarmSound.play();
-            alarmButton.textContent = 'Stop Alarm';
-            alarmButton.classList.remove('play');
-            alarmButton.classList.add('stop');
-        } else {
-            alarmSound.pause();
-            alarmSound.currentTime = 0;
-            alarmButton.textContent = 'Play Alarm';
-            alarmButton.classList.remove('stop');
-            alarmButton.classList.add('play');
-        }
-    });
-
-    let selectedDays = 0;
 
     // Update the expiration date
     function updateExpirationDate() {
@@ -113,8 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
         remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 
         // Trigger alarm at 00, 15, 30, 45 minutes of each hour
-        if ([0, 15, 30, 45].includes(minutes) && seconds === 0) {
-            alarmSound.play();
+        if ([0, 15, 25, 45].includes(minutes) && seconds === 0) {
+            playAlarmSound();
         }
     }
 
@@ -132,25 +175,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = event.target.files[0];
         if (file) {
             const fileURL = URL.createObjectURL(file);
-            alarmSound.src = fileURL;
+            fetch(fileURL)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.arrayBuffer();
+                })
+                .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                .then(buffer => {
+                    audioBuffer = buffer;
+                    console.log('New audio buffer loaded');
+                })
+                .catch(error => {
+                    console.error('Error loading new audio:', error);
+                });
         }
     });
 
-    // Stop alarm when the stop button is clicked
-    stopButton.addEventListener('click', () => {
-        alarmSound.pause();
-        alarmSound.currentTime = 0;
-    });
-
-    // Play alarm when the play button is clicked
-    playButton.addEventListener('click', () => {
-        alarmSound.play();
-    });
-
-    // Trigger stop button when the spacebar is pressed
-    document.addEventListener('keydown', (event) => {
-        if (event.code === 'Space') {
-            stopButton.click();
-        }
-    });
+    // Initialize audio context when the page is loaded
+    initAudioContext();
 });
