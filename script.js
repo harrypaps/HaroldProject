@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentDateEl = document.getElementById('current-date');
     const currentTimeEl = document.getElementById('current-time');
     const remainingTimeEl = document.getElementById('remaining-time');
+    const changeSoundButton = document.getElementById('change-sound-button');
+    const fileInput = document.getElementById('file-input');
     const alarmButton = document.getElementById('alarm-button');
     const alarmSound = document.getElementById('alarm-sound');
     let selectedDays = 0;
@@ -13,19 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function initAudioContext() {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         fetch(alarmSound.src)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok ' + response.statusText);
-                }
-                return response.arrayBuffer();
-            })
+            .then(response => response.arrayBuffer())
             .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
             .then(buffer => {
                 audioBuffer = buffer;
-                console.log('Audio buffer loaded');
-            })
-            .catch(error => {
-                console.error('Error loading audio:', error);
             });
     }
 
@@ -37,9 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
             source.connect(audioContext.destination);
             source.loop = true;
             source.start(0);
-            console.log('Alarm sound playing');
-        } else {
-            console.log('AudioContext or audioBuffer not initialized');
         }
     }
 
@@ -48,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (source) {
             source.stop(0);
             source = null;
-            console.log('Alarm sound stopped');
         }
     }
 
@@ -156,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 
         // Trigger alarm at 00, 15, 30, 45 minutes of each hour
-        if ([0, 15, 25, 45].includes(minutes) && seconds === 0) {
+        if ([0, 18, 30, 45].includes(minutes) && seconds === 0) {
             playAlarmSound();
         }
     }
@@ -176,23 +165,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             const fileURL = URL.createObjectURL(file);
             fetch(fileURL)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.arrayBuffer();
-                })
+                .then(response => response.arrayBuffer())
                 .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
                 .then(buffer => {
                     audioBuffer = buffer;
-                    console.log('New audio buffer loaded');
-                })
-                .catch(error => {
-                    console.error('Error loading new audio:', error);
                 });
         }
     });
-
-    // Initialize audio context when the page is loaded
-    initAudioContext();
 });
