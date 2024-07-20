@@ -2,66 +2,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentDateEl = document.getElementById('current-date');
     const currentTimeEl = document.getElementById('current-time');
     const remainingTimeEl = document.getElementById('remaining-time');
+    const alarmSound = document.getElementById('alarm-sound');
+    const alarmButton = document.getElementById('alarm-button');
     const changeSoundButton = document.getElementById('change-sound-button');
     const fileInput = document.getElementById('file-input');
-    const alarmButton = document.getElementById('alarm-button');
-    const alarmSound = document.getElementById('alarm-sound');
-    let selectedDays = 0;
-    let audioContext;
-    let audioBuffer;
-    let source;
-
-    // Initialize AudioContext
-    function initAudioContext() {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        fetch(alarmSound.src)
-            .then(response => response.arrayBuffer())
-            .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-            .then(buffer => {
-                audioBuffer = buffer;
-            });
-    }
-
-    // Play alarm sound using AudioContext
-    function playAlarmSound() {
-        if (audioContext && audioBuffer) {
-            source = audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(audioContext.destination);
-            source.loop = true;
-            source.start(0);
-        }
-    }
-
-    // Stop alarm sound
-    function stopAlarmSound() {
-        if (source) {
-            source.stop(0);
-            source = null;
-        }
-    }
-
-    // Handle alarm button click
-    alarmButton.addEventListener('click', function() {
-        if (!audioContext) {
-            initAudioContext();
-        }
-        if (source) {
-            stopAlarmSound();
-            alarmButton.textContent = 'Play Alarm';
-            alarmButton.classList.remove('stop');
-            alarmButton.classList.add('play');
-        } else {
-            playAlarmSound();
-            alarmButton.textContent = 'Stop Alarm';
-            alarmButton.classList.remove('play');
-            alarmButton.classList.add('stop');
-        }
-    });
+    const powerToggleButton = document.getElementById('power-toggle-button');
+    let powerOn = true;
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
     setInterval(updateExpirationDate, 1000);
+
+    // Combined play/stop functionality
+    alarmButton.addEventListener('click', function() {
+        if (alarmSound.paused) {
+            alarmSound.play();
+            alarmButton.textContent = 'Stop Alarm';
+            alarmButton.classList.remove('play');
+            alarmButton.classList.add('stop');
+        } else {
+            alarmSound.pause();
+            alarmSound.currentTime = 0;
+            alarmButton.textContent = 'Play Alarm';
+            alarmButton.classList.remove('stop');
+            alarmButton.classList.add('play');
+        }
+    });
+
+    powerToggleButton.addEventListener('click', function() {
+        powerOn = !powerOn;
+        if (powerOn) {
+            powerToggleButton.textContent = 'Power Off';
+        } else {
+            powerToggleButton.textContent = 'Power On';
+        }
+    });
+
+    let selectedDays = 0;
 
     // Update the expiration date
     function updateExpirationDate() {
@@ -144,9 +121,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Display remaining time until next alarm
         remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 
-        // Trigger alarm at 00, 15, 30, 45 minutes of each hour
-        if ([0, 15, 30, 45].includes(minutes) && seconds === 0) {
-            playAlarmSound();
+        // Trigger alarm at 00, 15, 30, 45 minutes of each hour if power is on
+        if (powerOn && [07, 15, 30, 58].includes(minutes) && seconds === 0) {
+            alarmSound.play();
         }
     }
 
@@ -156,20 +133,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Change sound button functionality
-    document.getElementById('change-sound-button').addEventListener('click', () => {
-        document.getElementById('file-input').click();
+    changeSoundButton.addEventListener('click', () => {
+        fileInput.click();
     });
 
-    document.getElementById('file-input').addEventListener('change', function(event) {
+    fileInput.addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
             const fileURL = URL.createObjectURL(file);
-            fetch(fileURL)
-                .then(response => response.arrayBuffer())
-                .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
-                .then(buffer => {
-                    audioBuffer = buffer;
-                });
+            alarmSound.src = fileURL;
         }
     });
 });
