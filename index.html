@@ -1,194 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- WORKING ADDED A WEB AUDIO API SETUP ON JAVASCRIPT -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HAROLD WEB APP</title>
-    <link rel="icon" href="alarm.png" type="png">
+    <link rel="icon" href="alarm.png" type="image/png">
     <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background: linear-gradient(135deg, rgba(240, 240, 240, 0.9), rgba(255, 255, 255, 0.9));
-            margin: 0;
-        }
+/* General Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    position: relative;
+    overflow: hidden;
+}
 
-        .label {
-            font-size: 4.5em;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 10px;
-        }
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: #1c1516;
+}
 
-        .time-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 40px;
-        }
+.label {
+    font-size: 4.5em;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+}
 
-        #current-time {
-            letter-spacing: 3px;
-            font-size: 12em;
-            font-weight: bold;
-            color: #333;
-        }
+.time-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.641);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    z-index: 1;
+}
 
-        #current-date {
-            letter-spacing: 5px;
-            font-size: 2em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 0px;
-        }
+#current-time {
+    letter-spacing: 3px;
+    font-size: 15vw;
+    font-weight: bold;
+    color: #333;
+}
 
-        #remaining-time {
-            font-size: 1.5em;
-            color: #555;
-            margin-bottom: 0px;
-        }
+#current-date {
+    letter-spacing: 5px;
+    font-size: 2vw; /* Fixed font size */
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+}
 
-        #expiration-container {
-            font-size: 2em;
-            color: #333;
-            margin-bottom: 20px;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
+#remaining-time {
+    font-size: 2vw;
+    color: #555;
+    margin-bottom: 0px;
+}
 
-        #expiration-date {
-            display: inline-block;
-        }
+#expiration-container {
+    font-size: 2em;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 20px;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.604);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1;
+}
 
-        button {
-            padding: 10px 20px;
-            font-size: 2em;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            margin: 10px;
-        }
+#expiration-date {
+    display: inline-block;
+}
 
-        #alarm-button.play {
-            background-color: #4CAF50;
-            color: white;
-        }
+button {
+    padding: 10px 20px;
+    font-size: 2em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin: 10px;
+}
 
-        #alarm-button.play:hover {
-            background-color: #45a049;
-        }
+#alarm-button.play {
+    background-color: #4CAF50;
+    color: white;
+}
 
-        #alarm-button.stop {
-            background-color: #FF5733;
-            color: white;
-        }
+#alarm-button.play:hover {
+    background-color: #45a049;
+}
 
-        #alarm-button.stop:hover {
-            background-color: #e64c00;
-        }
+#alarm-button.stop {
+    background-color: #FF5733;
+    color: white;
+}
 
-        #change-sound-button {
-            background-color: #4ce33f;
-            color: white;
-            font-size: 1.5em;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            margin: 10px;
-        }
+#alarm-button.stop:hover {
+    background-color: #e64c00;
+}
 
-        #change-sound-button:hover {
-            background-color: #03b300;
-        }
+#change-sound-button {
+    background-color: #4ce33f;
+    color: white;
+    font-size: 1.5em;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 10px;
+}
 
-        #file-input {
-            display: none;
-        }
+#change-sound-button:hover {
+    background-color: #03b300;
+}
 
-        #info-button {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.5em;
-            cursor: pointer;
-        }
+#file-input {
+    display: none;
+}
 
-        #days-buttons-container, #control-buttons-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+#info-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5em;
+    cursor: pointer;
+    z-index: 1;
+}
 
-        .days-button, .control-button {
-            padding: 10px 20px;
-            font-size: 2em;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            margin: 10px;
-        }
+#days-buttons-container, #control-buttons-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    z-index: 1;
+}
 
-        .days-button.selected {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
+.days-button, .control-button {
+    padding: 10px 20px;
+    font-size: 2em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    margin: 10px;
+    z-index: 1;
+}
 
-        .tooltip {
-            visibility: hidden;
-            opacity: 0;
-            width: 250px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            top: 60px;
-            left: 10px;
-            z-index: 1;
-            transform: translateY(-10px);
-            transition: opacity 0.3s, transform 0.3s;
-        }
+.days-button.selected {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
 
-        .tooltip::after {
-            content: "";
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: transparent transparent #333 transparent;
-        }
+.tooltip {
+    visibility: hidden;
+    opacity: 0;
+    width: 250px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 10px;
+    position: absolute;
+    top: 60px;
+    left: 10px;
+    z-index: 1;
+    transform: translateY(-10px);
+    transition: opacity 0.3s, transform 0.3s;
+}
 
-        .show-tooltip {
-            visibility: visible;
-            opacity: 1;
-            transform: translateY(0);
-        }
+.tooltip::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}
+
+.show-tooltip {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Responsive Styles */
+@media (max-width: 1200px) {
+    #current-time {
+        font-size: 8vw;
+    }
+
+    #remaining-time {
+        font-size: 2.5vw;
+    }
+}
+
+@media (max-width: 992px) {
+    #current-time {
+        font-size: 10vw;
+    }
+
+    #remaining-time {
+        font-size: 3vw;
+    }
+
+    button {
+        font-size: 1.5em;
+        padding: 8px 16px;
+    }
+}
+
+@media (max-width: 768px) {
+    #current-time {
+        font-size: 12vw;
+    }
+
+    #remaining-time {
+        font-size: 3.5vw;
+    }
+
+    button {
+        font-size: 1.2em;
+        padding: 6px 12px;
+    }
+}
+
+@media (max-width: 576px) {
+    #current-time {
+        font-size: 15vw;
+    }
+
+    #remaining-time {
+        font-size: 4vw;
+    }
+
+    button {
+        font-size: 1em;
+        padding: 5px 10px;
+    }
+
+    #info-button {
+        width: 30px;
+        height: 30px;
+        font-size: 1em;
+    }
+}
+
     </style>
 </head>
 <body>
+    <div id="particles-js"></div>
     <button id="info-button" aria-label="Information" onclick="toggleInfo()">ℹ️</button>
     <div id="expiration-container">
         <div id="expiration-date"></div>
@@ -217,12 +296,133 @@
         <p>This web application, created by <strong>Harold Trinidad</strong>, automates the management of tools used by operators for quality checks every 15 minutes. It includes an expiration date calculator that shows real-time expiration dates for product labeling. By eliminating the need for manual alarm setups, it significantly saves valuable time and enhances operational efficiency.</p>
     </div>
 
+    <!-- scripts -->
+    <script src="particles.js"></script>
+    
     <script src="script.js"></script>
     <script>
         function toggleInfo() {
             var tooltip = document.getElementById('info-tooltip');
             tooltip.classList.toggle('show-tooltip');
         }
+
+        particlesJS('particles-js',
+        {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#ffffff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    },
+                    "image": {
+                        "src": "img/github.svg",
+                        "width": 100,
+                        "height": 100
+                    }
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 5,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 6,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "repulse"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 400,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true,
+            "config_demo": {
+                "hide_card": false,
+                "background_color": "#b61924",
+                "background_image": "",
+                "background_position": "50% 50%",
+                "background_repeat": "no-repeat",
+                "background_size": "cover"
+            }
+        });
     </script>
 </body>
 </html>
