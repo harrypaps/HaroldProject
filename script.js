@@ -8,6 +8,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const powerToggleButton = document.getElementById('power-toggle-button');
     let powerOn = true;
+    let alarmAudioContext;
+    let alarmOscillator;
+    let alarmGainNode;
+
+    // Initialize the Web Audio API context
+    if (window.AudioContext || window.webkitAudioContext) {
+        alarmAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    // Function to play the alarm sound using Web Audio API
+    const playAlarmSound = () => {
+        if (!alarmAudioContext) return;
+
+        // Create an oscillator
+        alarmOscillator = alarmAudioContext.createOscillator();
+        alarmOscillator.type = 'square';
+        alarmOscillator.frequency.setValueAtTime(440, alarmAudioContext.currentTime); // 440 Hz
+
+        // Create a gain node
+        alarmGainNode = alarmAudioContext.createGain();
+        alarmGainNode.gain.setValueAtTime(0.5, alarmAudioContext.currentTime);
+
+        // Connect the oscillator to the gain node and the gain node to the audio context
+        alarmOscillator.connect(alarmGainNode);
+        alarmGainNode.connect(alarmAudioContext.destination);
+
+        // Start the oscillator
+        alarmOscillator.start();
+
+        // Stop the oscillator after 2 seconds
+        setTimeout(() => {
+            alarmOscillator.stop();
+        }, 2000);
+    };
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
@@ -123,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Trigger alarm at 00, 15, 30, 45 minutes of each hour if power is on
         if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0) {
-            alarmSound.play();
+            playAlarmSound();
         }
     }
 
