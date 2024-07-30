@@ -8,46 +8,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const fileInput = document.getElementById('file-input');
     const powerToggleButton = document.getElementById('power-toggle-button');
     let powerOn = true;
-    let alarmAudioContext;
-    let alarmOscillator;
-    let alarmGainNode;
 
-    // Initialize the Web Audio API context
-    if (window.AudioContext || window.webkitAudioContext) {
-        alarmAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    // Register the service worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(registration => {
+                console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            })
+            .catch(error => {
+                console.log('ServiceWorker registration failed: ', error);
+            });
     }
 
-    // Function to play the alarm sound using Web Audio API
     const playAlarmSound = () => {
-        if (!alarmAudioContext) return;
-
-        // Create an oscillator
-        alarmOscillator = alarmAudioContext.createOscillator();
-        alarmOscillator.type = 'square';
-        alarmOscillator.frequency.setValueAtTime(440, alarmAudioContext.currentTime); // 440 Hz
-
-        // Create a gain node
-        alarmGainNode = alarmAudioContext.createGain();
-        alarmGainNode.gain.setValueAtTime(0.5, alarmAudioContext.currentTime);
-
-        // Connect the oscillator to the gain node and the gain node to the audio context
-        alarmOscillator.connect(alarmGainNode);
-        alarmGainNode.connect(alarmAudioContext.destination);
-
-        // Start the oscillator
-        alarmOscillator.start();
-
-        // Stop the oscillator after 2 seconds
-        setTimeout(() => {
-            alarmOscillator.stop();
-        }, 2000);
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage('play-alarm');
+        } else {
+            // Fallback if service workers are not supported
+            const alarmSound = new Audio('alarm.mp3');
+            alarmSound.play();
+        }
     };
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
     setInterval(updateExpirationDate, 1000);
 
-    // Combined play/stop functionality
     alarmButton.addEventListener('click', function() {
         if (alarmSound.paused) {
             alarmSound.play();
@@ -65,16 +51,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     powerToggleButton.addEventListener('click', function() {
         powerOn = !powerOn;
-        if (powerOn) {
-            powerToggleButton.textContent = 'Power Off';
-        } else {
-            powerToggleButton.textContent = 'Power On';
-        }
+        powerToggleButton.textContent = powerOn ? 'Power Off' : 'Power On';
     });
 
     let selectedDays = 0;
 
-    // Update the expiration date
     function updateExpirationDate() {
         if (selectedDays > 0) {
             const expirationDateEl = document.getElementById('expiration-date');
@@ -92,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event listeners for the 180 and 210 days buttons
     document.getElementById('180-days-button').addEventListener('click', () => {
         selectedDays = 180;
         updateExpirationDate();
@@ -112,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(buttonId).classList.add('selected');
     }
 
-    // Function to format the current date
     function formatDate(date) {
         const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -125,26 +104,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}.${month}.${day} ${dayOfWeek.toUpperCase()}`;
     }
 
-    // Function to update the current time and remaining time
     function updateTimeAndDate() {
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
 
-        // Format the time as HH:MM:SS
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-        // Update current time
         currentTimeEl.textContent = formattedTime;
 
-        // Format the date as "YYYY.MM.DD DAY"
         const formattedDate = `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} ${getDayOfWeek(now)}`;
 
-        // Update current date
         currentDateEl.textContent = formattedDate;
 
-        // Calculate remaining time until next alarm
         let remainingMinutes = 15 - (minutes % 15) - 1;
         let remainingSeconds = 60 - seconds;
         if (remainingSeconds === 60) {
@@ -152,10 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
             remainingSeconds = 0;
         }
 
-        // Display remaining time until next alarm
         remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 
-        // Trigger alarm at 00, 15, 30, 45 minutes of each hour if power is on
         if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0) {
             playAlarmSound();
         }
@@ -166,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return daysOfWeek[date.getDay()];
     }
 
-    // Change sound button functionality
     changeSoundButton.addEventListener('click', () => {
         fileInput.click();
     });
