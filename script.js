@@ -2,12 +2,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentDateEl = document.getElementById('current-date');
     const currentTimeEl = document.getElementById('current-time');
     const remainingTimeEl = document.getElementById('remaining-time');
-    const alarmSound = document.getElementById('alarm-sound');
+    const alarmSound = new Audio('alarm.mp3'); // Preload the audio file
     const alarmButton = document.getElementById('alarm-button');
     const changeSoundButton = document.getElementById('change-sound-button');
     const fileInput = document.getElementById('file-input');
     const powerToggleButton = document.getElementById('power-toggle-button');
     let powerOn = true;
+    let lastAlarmMinute = null;
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
@@ -122,8 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
         remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 
         // Trigger alarm at 00, 15, 30, 45 minutes of each hour if power is on
-        if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0) {
+        if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
             alarmSound.play();
+            lastAlarmMinute = minutes;
         }
     }
 
@@ -142,6 +144,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (file) {
             const fileURL = URL.createObjectURL(file);
             alarmSound.src = fileURL;
+        }
+    });
+
+    // Page Visibility API to handle tab visibility changes
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
+                alarmSound.play();
+                lastAlarmMinute = minutes;
+            }
         }
     });
 });
