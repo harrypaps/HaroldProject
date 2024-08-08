@@ -41,7 +41,7 @@ body {
     background-color: rgba(255, 255, 255, 0.641);
     border-radius: 10px;
     padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     margin-bottom: 20px;
     z-index: 1;
 }
@@ -75,7 +75,7 @@ body {
     padding: 20px;
     background-color: rgba(255, 255, 255, 0.604);
     border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     z-index: 1;
 }
 
@@ -85,6 +85,7 @@ body {
 
 button {
     padding: 10px 20px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 2px 4px, rgba(0, 0, 0, 0.3) 0px 7px 13px -3px, rgba(0, 0, 0, 0.2) 0px -3px 0px inset;
     font-size: 2em;
     border: none;
     border-radius: 5px;
@@ -111,20 +112,42 @@ button {
     background-color: #e64c00;
 }
 
+#audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust the space between elements */
+}
+
+#audio-select {
+    padding: 5px;
+    font-size: 16px; /* Adjust font size */
+}
+
 #change-sound-button {
-    background-color: #4ce33f;
+    padding: 5px 10px;
+    font-size: 16px; /* Match font size with the select element */
+    background-color: #4CAF50; /* Green background */
     color: white;
-    font-size: 1.5em;
-    padding: 8px 16px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    margin: 10px;
 }
 
 #change-sound-button:hover {
-    background-color: #03b300;
+    background-color: #45a049; /* Darker green on hover */
+}
+
+select#audio-select {
+    background-color: green;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+option[disabled] {
+    color: #ccc;
 }
 
 #file-input {
@@ -287,8 +310,25 @@ button {
     </div>
     <div id="control-buttons-container">
         <button id="alarm-button" class="control-button play" aria-label="Toggle Alarm">Play Alarm</button>
-        <button id="power-toggle-button" class="control-button" aria-label="Power On/Off">Power Off</button>
-        <button id="change-sound-button" class="control-button" aria-label="Change Alarm Sound">Change Sound</button>
+        <button id="power-toggle-button" class="control-button" aria-label="Power On/Off">POWER</button>        
+        <div id="audio-controls">
+            <select id="audio-select">
+                <option value="" disabled selected>Choose Melody</option>
+        <!-- Add your audio options here -->
+                <option value="AudioFiles/Siren.mp3">SIREN</option>
+                <option value="AudioFiles/POLICE SIREN.mp3">POLICE SIREN</option>
+                <option value="AudioFiles/Danger Horn.mp3">DANGER HORN</option>
+                <option value="AudioFiles/Buzzer.mp3">BUZZER</option>
+                <option value="AudioFiles/Car Alarm.mp3">CAR ALARM</option>
+                <option value="AudioFiles/Old Clock.mp3">OLD CLOCK</option>
+                <option value="AudioFiles/Look Out.mp3">LOOK OUT</option>
+                <option value="AudioFiles/Shut Up.mp3">SHUT UP</option>
+                <option value="AudioFiles/Clock Classic.mp3">CLOCK CLASSIC</option>
+            </select>
+            <button id="change-sound-button">Change Sound</button>
+        </div>
+        
+
     </div>
     <input type="file" id="file-input" accept=".mp3">
 
