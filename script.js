@@ -2,46 +2,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentDateEl = document.getElementById('current-date');
     const currentTimeEl = document.getElementById('current-time');
     const remainingTimeEl = document.getElementById('remaining-time');
-    const alarmSound = new Audio('alarm.mp3'); // Preload the audio file
+    const alarmSound = new Audio('AudioFiles/alarm1.mp3'); // Default audio
     const alarmButton = document.getElementById('alarm-button');
     const changeSoundButton = document.getElementById('change-sound-button');
     const fileInput = document.getElementById('file-input');
     const powerToggleButton = document.getElementById('power-toggle-button');
+    const audioSelect = document.getElementById('audio-select');
     let powerOn = true;
     let lastAlarmMinute = null;
+    let selectedDays = 0;
 
     // Update the current time and date every second
     setInterval(updateTimeAndDate, 1000);
     setInterval(updateExpirationDate, 1000);
 
-    // Combined play/stop functionality
     alarmButton.addEventListener('click', function() {
         if (alarmSound.paused) {
             alarmSound.play();
-            alarmButton.textContent = 'Stop Alarm';
-            alarmButton.classList.remove('play');
-            alarmButton.classList.add('stop');
+            alarmSound.loop = true; // Loop the audio
+            updateAlarmButtonState(true);
         } else {
             alarmSound.pause();
             alarmSound.currentTime = 0;
-            alarmButton.textContent = 'Play Alarm';
-            alarmButton.classList.remove('stop');
-            alarmButton.classList.add('play');
+            updateAlarmButtonState(false);
         }
     });
 
     powerToggleButton.addEventListener('click', function() {
         powerOn = !powerOn;
         if (powerOn) {
-            powerToggleButton.textContent = 'Power Off';
-        } else {
             powerToggleButton.textContent = 'Power On';
+            powerToggleButton.style.backgroundColor = '#4CAF50'; // Green
+        } else {
+            powerToggleButton.textContent = 'Power Off';
+            powerToggleButton.style.backgroundColor = '#FF5733'; // Red
+            document.title = 'HAROLD WEB APP'; // Reset the title
         }
     });
 
-    let selectedDays = 0;
-
-    // Update the expiration date
     function updateExpirationDate() {
         if (selectedDays > 0) {
             const expirationDateEl = document.getElementById('expiration-date');
@@ -59,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event listeners for the 180 and 210 days buttons
     document.getElementById('180-days-button').addEventListener('click', () => {
         selectedDays = 180;
         updateExpirationDate();
@@ -79,7 +76,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById(buttonId).classList.add('selected');
     }
 
-    // Function to format the current date
     function formatDate(date) {
         const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -92,40 +88,37 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${year}.${month}.${day} ${dayOfWeek.toUpperCase()}`;
     }
 
-    // Function to update the current time and remaining time
     function updateTimeAndDate() {
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
 
-        // Format the time as HH:MM:SS
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        // Update current time
         currentTimeEl.textContent = formattedTime;
 
-        // Format the date as "YYYY.MM.DD DAY"
         const formattedDate = `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} ${getDayOfWeek(now)}`;
-
-        // Update current date
         currentDateEl.textContent = formattedDate;
 
-        // Calculate remaining time until next alarm
-        let remainingMinutes = 15 - (minutes % 15) - 1;
-        let remainingSeconds = 60 - seconds;
-        if (remainingSeconds === 60) {
-            remainingMinutes += 1;
-            remainingSeconds = 0;
-        }
+        if (powerOn) {
+            let remainingMinutes = 15 - (minutes % 15) - 1;
+            let remainingSeconds = 60 - seconds;
+            if (remainingSeconds === 60) {
+                remainingMinutes += 1;
+                remainingSeconds = 0;
+            }
 
-        // Display remaining time until next alarm
-        remainingTimeEl.textContent = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            const remainingTimeText = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+            remainingTimeEl.textContent = remainingTimeText;
+            document.title = `${remainingTimeText} | HAROLD WEB APP`;
 
-        // Trigger alarm at 00, 15, 30, 45 minutes of each hour if power is on
-        if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
-            alarmSound.play();
-            lastAlarmMinute = minutes;
+            if ([0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
+                alarmSound.play();
+                lastAlarmMinute = minutes;
+                updateAlarmButtonState(true); // Ensure button state updates when alarm starts automatically
+            }
+        } else {
+            remainingTimeEl.textContent = '';
         }
     }
 
@@ -134,29 +127,55 @@ document.addEventListener('DOMContentLoaded', () => {
         return daysOfWeek[date.getDay()];
     }
 
-    // Change sound button functionality
+    // Handle Change Sound Button
     changeSoundButton.addEventListener('click', () => {
-        fileInput.click();
+        fileInput.click(); // Triggers file input dialog
     });
 
+    // Handle File Input Change Event
     fileInput.addEventListener('change', function(event) {
         const file = event.target.files[0];
         if (file) {
             const fileURL = URL.createObjectURL(file);
             alarmSound.src = fileURL;
+            alarmSound.loop = true; // Loop the audio
+            updateAlarmButtonState(false); // Reset button state after changing sound
         }
     });
 
-    // Page Visibility API to handle tab visibility changes
+    // Handle Audio Select Dropdown Change Event
+    audioSelect.addEventListener('change', function(event) {
+        const selectedAudio = event.target.value;
+        alarmSound.src = selectedAudio;
+        alarmSound.loop = true; // Loop the audio
+        if (!alarmSound.paused) {
+            alarmSound.play(); // Restart the audio if it's currently playing
+        }
+        updateAlarmButtonState(false); // Reset button state after changing sound
+    });
+
     document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
+        if (!document.hidden && powerOn) {
             const now = new Date();
             const minutes = now.getMinutes();
             const seconds = now.getSeconds();
-            if (powerOn && [0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
+            if ([0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
                 alarmSound.play();
                 lastAlarmMinute = minutes;
+                updateAlarmButtonState(true); // Ensure button state updates when alarm starts automatically
             }
         }
     });
+
+    function updateAlarmButtonState(isPlaying) {
+        if (isPlaying) {
+            alarmButton.textContent = 'Stop Alarm';
+            alarmButton.classList.remove('play');
+            alarmButton.classList.add('stop');
+        } else {
+            alarmButton.textContent = 'Play Alarm';
+            alarmButton.classList.remove('stop');
+            alarmButton.classList.add('play');
+        }
+    }
 });
