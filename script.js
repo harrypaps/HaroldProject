@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', () => {
     powerToggleButton.addEventListener('click', function() {
         powerOn = !powerOn;
         if (powerOn) {
-            powerToggleButton.textContent = 'Power On';
+            powerToggleButton.textContent = 'ON';
             powerToggleButton.style.backgroundColor = '#4CAF50'; // Green
         } else {
-            powerToggleButton.textContent = 'Power Off';
+            powerToggleButton.textContent = 'OFF';
             powerToggleButton.style.backgroundColor = '#FF5733'; // Red
             document.title = 'HAROLD WEB APP'; // Reset the title
         }
