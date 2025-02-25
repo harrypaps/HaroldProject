@@ -93,26 +93,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
-
         const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         currentTimeEl.textContent = formattedTime;
-
         const formattedDate = `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} ${getDayOfWeek(now)}`;
         currentDateEl.textContent = formattedDate;
-
         if (powerOn) {
-            let remainingMinutes = 15 - (minutes % 15) - 1;
+            let remainingMinutes = 20 - (minutes % 20) - 1;
             let remainingSeconds = 60 - seconds;
             if (remainingSeconds === 60) {
                 remainingMinutes += 1;
                 remainingSeconds = 0;
             }
-
             const remainingTimeText = `Next alarm in ${remainingMinutes}:${remainingSeconds.toString().padStart(2, '0')}`;
             remainingTimeEl.textContent = remainingTimeText;
             document.title = `${remainingTimeText} | HAROLD WEB APP`;
-
-            if ([0, 15, 30, 45].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
+            if ([0, 20, 40].includes(minutes) && seconds === 0 && lastAlarmMinute !== minutes) {
                 alarmSound.play();
                 lastAlarmMinute = minutes;
                 updateAlarmButtonState(true); // Ensure button state updates when alarm starts automatically
@@ -120,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             remainingTimeEl.textContent = '';
         }
-    }
+}
 
     function getDayOfWeek(date) {
         const daysOfWeek = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
